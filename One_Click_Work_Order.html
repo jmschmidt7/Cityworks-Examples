@@ -1,0 +1,110 @@
+<html>
+<head>
+    <link rel="stylesheet" href="jquery-ui-1.11.4/jquery-ui.css">
+    <script src="jquery-1.11.3.min.js" type="text/javascript"></script>
+    <script src="jquery-ui-1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+	function createPayrollWO(WOTemplateId, woType){
+		week = getParameterByName("week");
+		startDate = new Date();
+		
+		startDate = new Date();
+		if (week == "current")
+		{
+			startDate = startDate.addDays(0 - startDate.getDay());
+		}
+		else if (week == "previous")
+		{
+			startDate = startDate.addDays(0 - startDate.getDay() - 7);
+		}
+		else if (week == "next")
+		{
+			startDate = startDate.addDays(0 - startDate.getDay() + 7);
+		}
+		sdMonth = startDate.getMonth() + 1;
+		sdMonth = Right("0" + sdMonth, 2);
+		sdDay = startDate.getDate();
+		sdDay = Right("0" + sdDay, 2);
+		startDateString = startDate.getFullYear() + '-' + sdMonth + '-' + sdDay + 'T00:00:00';
+		
+		$.ajax({
+			url: "http://arcgis/Cityworks/Services/WorkOrder/Create?data={'EntityType':'TIME SHEETS', 'WOTemplateId':'"+WOTemplateId+"', 'ProjectedStartDate':'" + startDateString + "', 'Instructions':'All "+ woType +" for "+getParameterByName("Department")+"', 'CustomFieldValues':{'12':'"+getParameterByName("Department")+"'}}&token=YOUR_TOKEN_HERE",
+			beforeSend: function (xhr) {
+				$('#loading').css("visibility","visible");
+			},
+            complete: function () {
+                parent.location.reload();
+                //$('#loading').css("visibility","hidden");
+            }
+		});
+	}
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+  
+        $(document).on("click", "button", function() {
+			var r = confirm("Are you sure you want to create a new code " + $(this).html() + " work order?");
+			if (r == true) {
+				createPayrollWO($(this).data("wotemplateid"), $(this).html());
+			} else {
+				x = "You pressed Cancel!";
+			}
+        });
+	Date.prototype.addDays = function(days)
+		{
+			var dat = new Date(this.valueOf());
+			dat.setDate(dat.getDate() + days);
+			return dat;
+		}
+	
+	function Right(str, n){
+		if (n <= 0)
+		   return "";
+		else if (n > String(str).length)
+		   return str;
+		else {
+		   var iLen = String(str).length;
+		   return String(str).substring(iLen, iLen - n);
+		}
+	}
+    </script>
+	<style>
+	button {
+		margin: 5px;
+	}
+	</style>
+</head>
+    
+<body>
+  <button id="FuneralImmFamilyButton" data-wotemplateid="156">005 - Funeral/Imme. Family</button>
+	<button id="JuryDutyButton" data-wotemplateid="157">006 - Jury Duty Hours</button>
+	<button id="PersonalDayButton" data-wotemplateid="159">008 - Personal Day Hours</button>
+	<button id="TrainingButton" data-wotemplateid="161">010 - Training</button>
+	<button id="UnitedWayButton" data-wotemplateid="164">013 - United Way Day</button>
+	<button id="HealthFairButton" data-wotemplateid="165">014 - Health Fair Day Off</button>
+	<button id="LightDutyButton" data-wotemplateid="166">015 - Light Duty</button>
+  <button id="WorkersCompLDButton" data-wotemplateid="167">016 - Workers Comp Light Duty</button>
+	<button id="CMHolidayButton" data-wotemplateid="168">017 - CM Holiday Hours</button>
+	<button id="CareerServiceButton" data-wotemplateid="169">018 - Career Service Award Hours</button>
+	<button id="CallbackSWDButton" data-wotemplateid="170">022 - Callback (Scheduled Work Day)</button>
+	<button id="CallbackNSWDButton" data-wotemplateid="171">023 - Callback (Non-Scheduled Work Day)</button>
+	<button id="TempSeasonalQualNonPensionableButton" data-wotemplateid="261">051 - Temp/Seasonal Qualified Non-Pensionable</button>
+	<button id="PartTimeButton" data-wotemplateid="262">053 - Part Time</button>
+	<button id="PartTimeOverTimeNonBenefitsButton" data-wotemplateid="263">054 - Part Time Over Time Non Benefits</button>
+	<button id="FMLAVacationButton" data-wotemplateid="172">062 - FMLA-Vacation Pay</button>
+	<button id="FMLASickButton" data-wotemplateid="173">063 - FMLA-Sick Pay</button>
+	<button id="FMLANoPayButton" data-wotemplateid="174">065 - FMLA-No Pay</button>
+	<button id="MilitaryLeavePaidButton" data-wotemplateid="335">215 - Military Leave - Paid</button>
+	<button id="MilitaryLeaveUnpaidButton" data-wotemplateid="336">216 - Military Leave - Unpaid</button>
+	<button id="WorkersCompensationButton" data-wotemplateid="175">242 - Worker's Compensation</button>
+    <div id='loading' style="display: inline-block; margin-top:-25px;padding-bottom:-5px;visibility: hidden">
+        <img src="loading_animation.gif" width="25px" />
+    </div>
+    <div id="content"></div>
+</body>
+</html>
